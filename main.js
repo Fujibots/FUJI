@@ -7,7 +7,13 @@ const fs = require("fs");
 const login = require('./includes/login');
 const moment = require("moment-timezone");
 const logger = require("./utils/log.js");
-
+console.log(`
+╔═══╦╗─╔╗─╔╦══╦═══╦═══╦═══╦╗╔═╗
+║╔══╣║─║║─║╠╣╠╣╔═╗║╔═╗║╔═╗║║║╔╝
+║╚══╣║─║║─║║║║║╚═╝║║─║║║─╚╣╚╝╝
+║╔══╣║─║╠╗║║║║║╔══╣╚═╝║║─╔╣╔╗║
+║║──║╚═╝║╚╝╠╣╠╣║──║╔═╗║╚═╝║║║╚╗
+╚╝──╚═══╩══╩══╩╝──╚╝─╚╩═══╩╝╚═╝`)
 global.client = new Object({
   commands: new Map(),
   events: new Map(),
@@ -149,7 +155,6 @@ if (errorMessages.length > 0) {
 }
 // ────────────────── //
 var configValue;
-const confg = './config.json';
 try {
   global.client.configPath = join(global.client.mainPath, "config.json");
   configValue = require(global.client.configPath);
@@ -206,34 +211,26 @@ try {
   var appState = ((process.env.REPL_OWNER || process.env.PROCESSOR_IDENTIFIER) && (fs.readFileSync(appStateFile, 'utf8'))[0] != "[" && config.encryptSt) ? JSON.parse(global.utils.decryptState(fs.readFileSync(appStateFile, 'utf8'), (process.env.REPL_OWNER || process.env.PROCESSOR_IDENTIFIER))) : require(appStateFile);
   logger.loader("Found the bot's appstate.")
 } catch (e) {
-  logger.loader("Can't find the bot's appstate.", "error");
-  const fig = JSON.parse(fs.readFileSync(confg, 'utf8'));
-  fig.CONNECT_LOG = false;
-  fs.writeFileSync(confg, JSON.stringify(fig, null, 2), 'utf8');
-  global.utils.connect();
-  return;
+  return logger.loader("Can't find the bot's appstate.", "error")
 }
 
 function onBot() {
   const loginData = {};
   loginData.appState = appState;
-  login(loginData, async (err, api) => {
-    if (err) {
-      if (err.error == 'Error retrieving userID. This can be caused by a lot of things, including getting blocked by Facebook for logging in from an unknown location. Try logging in with a browser to verify.') {
-        console.log(err.error)
+  login(loginData, async (loginError, loginApiData) => {
+    if (loginError) {
+      if (loginError.error == 'Error retrieving userID. This can be caused by a lot of things, including getting blocked by Facebook for logging in from an unknown location. Try logging in with a browser to verify.') {
+        console.log(loginError.error)
         process.exit(0)
       } else {
-        console.log(err)
+        console.log(loginError)
         return process.exit(0)
       }
     }
-    const custom = require('./custom');
-    custom({ api: api });
 
-    const fbstate = api.getAppState();
-    api.setOptions(global.config.FCAOption);
-      fs.writeFileSync('appstate.json', JSON.stringify(api.getAppState()));
-    let d = api.getAppState();
+    const fbstate = loginApiData.getAppState();
+    loginApiData.setOptions(global.config.FCAOption);
+    let d = loginApiData.getAppState();
     d = JSON.stringify(d, null, '\x09');
     if ((process.env.REPL_OWNER || process.env.PROCESSOR_IDENTIFIER) && global.config.encryptSt) {
       d = await global.utils.encryptState(d, process.env.REPL_OWNER || process.env.PROCESSOR_IDENTIFIER);
@@ -242,12 +239,12 @@ function onBot() {
       writeFileSync(appStateFile, d)
     }
     global.account.cookie = fbstate.map(i => i = i.key + "=" + i.value).join(";");
-    global.client.api = api
+    global.client.api = loginApiData
     global.config.version = config.version,
       (async () => {
         const commandsPath = `${global.client.mainPath}/modules/commands`;
         const listCommand = readdirSync(commandsPath).filter(command => command.endsWith('.js') && !command.includes('example') && !global.config.commandDisabled.includes(command));
-        console.log(cv(`\n` + `──LOADING COMMANDS─●`));
+        console.log(cv(`\n` + `──LOADING MARJHUN COMMANDS─●`));
         for (const command of listCommand) {
           try {
             const module = require(`${commandsPath}/${command}`);
@@ -255,7 +252,7 @@ function onBot() {
 
             if (!config?.name) {
               try {
-                throw new Error(`[ COMMAND ] ${command} command has no name property or empty!`);
+                throw new Error(` MARJHUN COMMAND  ${command} command has no name property or empty!`);
               } catch (error) {
                 console.log(chalk.red(error.message));
                 continue;
@@ -263,7 +260,7 @@ function onBot() {
             }
             if (!config?.commandCategory) {
               try {
-                throw new Error(`[ COMMAND ] ${command} commandCategory is empty!`);
+                throw new Error(` MARJHUN COMMAND  ${command} commandCategory is empty!`);
               } catch (error) {
                 console.log(chalk.red(error.message));
                 continue;
@@ -276,7 +273,7 @@ function onBot() {
             }
 
             if (global.client.commands.has(config.name || '')) {
-              console.log(chalk.red(`[ COMMAND ] ${chalk.hex("#FFFF00")(command)} Module is already loaded!`));
+              console.log(chalk.red(` MARJHUN COMMAND  ${chalk.hex("#FFFF00")(command)} Module is already loaded!`));
               continue;
             }
             const { dependencies, envConfig } = config;
@@ -292,7 +289,7 @@ function onBot() {
                   });
                   require.cache = {};
                 } catch (error) {
-                  const errorMessage = `[PACKAGE] Failed to install package ${reqDependency} for module`;
+                  const errorMessage = `PACKAGE Failed to install package ${reqDependency} for module`;
                   global.loading.err(chalk.hex('#ff7100')(errorMessage), 'LOADED');
                 }
               });
@@ -314,7 +311,7 @@ function onBot() {
 
             if (module.onLoad) {
               const moduleData = {
-                api: api
+                api: loginApiData
               };
               try {
                 module.onLoad(moduleData);
@@ -327,27 +324,27 @@ function onBot() {
             if (module.handleEvent) global.client.eventRegistered.push(config.name);
             global.client.commands.set(config.name, module);
             try {
-              global.loading(`${cra(`LOADED`)} ${cb(config.name)} success`, "COMMAND");
+              global.loading(`${cra(`LOADED`)} ${cb(config.name)} success`, "MARJHUN COMMAND");
             } catch (err) {
               console.error("An error occurred while loading the command:", err);
             }
 
             console.err
           } catch (error) {
-            global.loading.err(`${chalk.hex('#ff7100')(`LOADED`)} ${chalk.hex("#FFFF00")(command)} fail ` + error, "COMMAND");
+            global.loading.err(`${chalk.hex('#ff7100')(`LOADED`)} ${chalk.hex("#FFFF00")(command)} fail ` + error, "MARJHUN COMMAND");
           }
         }
       })(),
 
       (async () => {
         const events = readdirSync(join(global.client.mainPath, 'modules/events')).filter(ev => ev.endsWith('.js') && !global.config.eventDisabled.includes(ev));
-        console.log(cv(`\n` + `──LOADING EVENTS─●`));
+        console.log(cv(`\n` + `──LOADING MARJHUN EVENTS─●`));
         for (const ev of events) {
           try {
             const event = require(join(global.client.mainPath, 'modules/events', ev));
             const { config, onLoad, run } = event;
             if (!config || !config.name || !run) {
-              global.loading.err(`${chalk.hex('#ff7100')(`LOADED`)} ${chalk.hex("#FFFF00")(ev)} Module is not in the correct format. `, "EVENT");
+              global.loading.err(`${chalk.hex('#ff7100')(`LOADED`)} ${chalk.hex("#FFFF00")(ev)} Module is not in the correct format. `, "MARJHUN EVENT");
               continue;
             }
 
@@ -360,7 +357,7 @@ function onBot() {
             }
 
             if (global.client.events.has(config.name)) {
-              global.loading.err(`${chalk.hex('#ff7100')(`LOADED`)} ${chalk.hex("#FFFF00")(ev)} Module is already loaded!`, "EVENT");
+              global.loading.err(`${chalk.hex('#ff7100')(`LOADED`)} ${chalk.hex("#FFFF00")(ev)} Module is already loaded!`, "MARJHUN EVENT");
               continue;
             }
             if (config.dependencies) {
@@ -389,24 +386,25 @@ function onBot() {
             }
             if (onLoad) {
               const eventData = {
-                api: api
+                api: loginApiData
               };
               await onLoad(eventData);
             }
             global.client.events.set(config.name, event);
-            global.loading(`${cra(`LOADED`)} ${cb(config.name)} success`, "EVENT");
+            global.loading(`${cra(`LOADED`)} ${cb(config.name)} success`, "MARJHUN EVENT");
           }
           catch (err) {
-            global.loading.err(`${chalk.hex("#ff0000")('ERROR!')} ${cb(ev)} failed with error: ${err.message}` + `\n`, "EVENT");
+            global.loading.err(`${chalk.hex("#ff0000")('ERROR!')} ${cb(ev)} failed with error: ${err.message}` + `\n`, "MARJHUN EVENT");
           }
         }
       })();
-    console.log(cv(`\n` + `──BOT START─● `));
+    console.log(cv(`\n` + `──FUJI BOT START─● `));
     global.loading(`${cra(`[ SUCCESS ]`)} Loaded ${cb(`${global.client.commands.size}`)} commands and ${cb(`${global.client.events.size}`)} events successfully`, "LOADED");
-    global.loading(`${cra(`[ TIMESTART ]`)} Launch time: ${((Date.now() - global.client.timeStart) / 1000).toFixed()}s`, "LOADED");
-    global.utils.complete({ api });
-    const listener = require('./includes/listen')({ api: api });
-    global.handleListen = api.listenMqtt(async (error, event) => {
+    global.loading(`${cra(` TIMESTART `)} Launch time: ${((Date.now() - global.client.timeStart) / 1000).toFixed()}s`, "LOADED");
+    global.utils.complete({ api: loginApiData });
+    const listener = require('./includes/listen')({ api: loginApiData });
+    global.custom = require('./custom')({ api: loginApiData });
+    global.handleListen = loginApiData.listenMqtt(async (error, message) => {
       if (error) {
         if (error.error === 'Not logged in.') {
           logger("Your bot account has been logged out!", 'LOGIN');
@@ -419,23 +417,21 @@ function onBot() {
         console.log(error);
         return process.exit(0);
       }
-      if (['presence', 'typ', 'read_receipt'].some(data => data === event.type)) return;
-      return listener(event);
+      if (['presence', 'typ', 'read_receipt'].some(data => data === message.type)) return;
+      return listener(message);
     });
   });
 }
-
-// ___END OF EVENT & API USAGE___ //
-
 (async () => {
-  try {
-    console.log(cv(`\n` + `──DATABASE─●`));
-    global.loading(`${cra(`[ CONNECT ]`)} Connected to JSON database successfully!`, "DATABASE");
-    onBot();
-  } catch (error) {
-    global.loading.err(`${cra(`[ CONNECT ]`)} Failed to connect to the JSON database: ` + error, "DATABASE");
-  }
+  // try {
+  console.log(cv(`\n` + `──MARJHUN DATABASE─●`));
+  global.loading(`${cra(` CONNECT `)} Connected to JSON database successfully!`, "MARJHUN DATABASE");
+  onBot();
+  //} catch (error) {
+  //   global.loading.err(`${cra(`[ CONNECT ]`)} Cannot connect to the JSON database.`, "DATABASE");
+  //  }
 })();
+
 /* *
 This bot was created by me (CATALIZCS) and my brother SPERMLORD. Do not steal my code. (つ ͡ ° ͜ʖ ͡° )つ ✄ ╰⋃╯
 This file was modified by me (@YanMaglinte). Do not steal my credits. (つ ͡ ° ͜ʖ ͡° )つ ✄ ╰⋃╯

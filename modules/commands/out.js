@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 2,
     credits: "Kanichi",
     description: "Leave the group",
-    usePrefix: true,
+    usePrefix: false,
     commandCategory: "Admin",
     usages: "out [id]",
     cooldowns: 10,

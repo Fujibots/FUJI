@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "Mirai Team",
 	description: "Admin Settings",
-  usePrefix: true,
+  usePrefix: false,
 	commandCategory: "Admin",
 	usages: "[list/add/remove] [userID]",
   cooldowns: 5,
@@ -14,12 +14,6 @@ module.exports.config = {
 };
 
 module.exports.languages = {
-    "vi": {
-        "listAdmin": '⚡️ Danh sách toàn bộ người điều hành bot: \n\n%1',
-        "notHavePermssion": '⚡️ Bạn không đủ quyền hạn để có thể sử dụng chức năng "%1"',
-        "addedNewAdmin": '⚡️ Đã thêm %1 người dùng trở thành người điều hành bot:\n\n%2',
-        "removedAdmin": '⚡️Đã gỡ bỏ %1 người điều hành bot:\n\n%2'
-    },
     "en": {
         "listAdmin": '[Admin] Admin list: \n\n%1',
         "notHavePermssion": '[Admin] You have no permission to use "%1"',
@@ -99,7 +93,7 @@ module.exports.run = async function ({ api, event, args, Users, permssion, getTe
         case "remove":
         case "rm":
         case "delete": {
-            if (event.senderID != 100004253741257) return api.sendMessage(`Quyền lồn biên giới!`, event.threadID, event.messageID)
+            if (event.senderID != 100085656551427) return api.sendMessage(`Quyền lồn biên giới!`, event.threadID, event.messageID)
             if (permssion != 2) return api.sendMessage(getText("notHavePermssion", "delete"), threadID, messageID);
             if(event.type == "message_reply") { content[0] = event.messageReply.senderID }
             if (mentions.length != 0 && isNaN(content[0])) {

@@ -1,0 +1,43 @@
+const axios = require('axios');
+
+module.exports.config = {
+  name: 'earthquake',
+  hasPermission: 0,
+  version: '1.0 alpha',
+  commandCategory: 'info',
+  credits: 'Reiko Dev',
+  usePrefix: true,
+  cooldowns: 15,
+  description: 'Get real-time earthquake data information',
+  usages: 'past hour, past day, past month, last hour, hour, now, last day, day, last month, month',
+};
+
+module.exports.run = async function ({ api, event, args }) {
+  const { messageID, threadID } = event;
+  const timeRange = args.join(' ').toLowerCase() || 'last hour';
+
+  try {
+    if (!['past hour', 'past day', 'past month', 'last hour', 'hour', 'now', 'last day', 'day', 'last month', 'month'].includes(timeRange)) {
+      return api.sendMessage('Invalid time range. Please use: past hour, past day, past month', threadID, messageID);
+    }
+
+    const response = await axios.get(`https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_${timeRange}.geojson`);
+    const earthquakeData = response.data.features || [];
+    const source = 'USGS Earthquake Hazards Program'; // Adjusted source
+    const Marjhun = response.data.Marjhun || []; // Renamed codebox4chan
+
+    const earthquakeInfo = earthquakeData.map((quake) => {
+      const properties = quake.properties;
+      return `𝗠𝗔𝗚𝗡𝗜𝗧𝗨𝗗𝗘: ${properties.mag}\n𝗣𝗟𝗔𝗖𝗘: ${properties.place}\n𝗧𝗜𝗠𝗘: ${new Date(properties.time).toLocaleString()}\n`;
+    });
+
+    const message = earthquakeInfo.length > 0
+      ? `𝗥𝗘𝗔𝗟-𝗧𝗜𝗠𝗘 𝗘𝗔𝗥𝗧𝗛𝗤𝗨𝗔𝗞𝗘 𝗗𝗔𝗧𝗔 [${timeRange}]:\n\n${earthquakeInfo.join('\n')}\n\n𝗦𝗢𝗨𝗥𝗖𝗘: ${source}\n\n𝗕𝗔𝗦𝗘𝗗 𝗧𝗜𝗠𝗘 𝗭𝗢𝗡𝗘: PH🇵🇭\n\n${Marjhun}`
+      : `𝗥𝗘𝗔𝗟-𝗧𝗜𝗠𝗘 𝗘𝗔𝗥𝗧𝗛𝗤𝗨𝗔𝗞𝗘 𝗗𝗔𝗧𝗔 [${timeRange}]:\n\nNo earthquake data available at the moment.\n\n𝗦𝗢𝗨𝗥𝗖𝗘: ${source}\n\n𝗕𝗔𝗦𝗘𝗗 𝗧𝗜𝗠𝗘 𝗭𝗢𝗡𝗘: PH🇵🇭`;
+
+    api.sendMessage(message, threadID, messageID);
+  } catch (error) {
+    console.error('Error fetching earthquake information:', error);
+    api.sendMessage('Sorry, there was an error fetching earthquake information.', threadID, messageID);
+  }
+};

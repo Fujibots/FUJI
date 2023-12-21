@@ -5,9 +5,9 @@ module.exports.config = {
 	name: "tid",
 	version: "1.0.5",
 	hasPermssion: 0,
-	credits: "NTKhang & Yan Maglinte", // Added a function to get ThreadImage
+	credits: "MARJHUN BAYLON",
 	description: "Get box id and group image",
-	usePrefix: true,
+	usePrefix: false,
 	commandCategory: "group",
 	usages: "tid",
 	cooldowns: 5

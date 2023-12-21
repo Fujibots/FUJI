@@ -22,7 +22,7 @@ module.exports = function({ api, models, Users, Threads, Currencies }) {
     const args = (body || '').trim().split(/ +/);
     const commandName = args.shift()?.toLowerCase();
     var command = commands.get(commandName);
-    const replyAD = '[ MODE ] - Only bot admin can use bot';
+    const replyAD = '⚠️[ MODE ]⚠️\n\n\nTHE BOT WILL HAVING UNDERGOING MAINTENANCE DEVELOPER WILL FIXING BUGS AND ERRORS THAT HAVE BEEN REPORTED BY USERS\n\n\n✿━━━━━━━━━━━━━━━━━━✿ 🌸|•ᴛʜɪs ʙᴏᴛ ɪs ᴜɴᴅᴇʀ ᴅᴇᴠᴇʟᴏᴘᴍᴇɴᴛ ᴏғ ᴍᴀʀᴊʜᴜɴ ʙᴀʏʟᴏɴ : https://www.facebook.com/zcoded221 🌸✿━━━━━━━━━━━━━━━━━━✿';
 
     if (command && (command.config.name.toLowerCase() === commandName.toLowerCase()) && (!ADMINBOT.includes(senderID) && adminOnly && senderID !== api.getCurrentUserID())) {
       return api.sendMessage(replyAD, threadID, messageID);

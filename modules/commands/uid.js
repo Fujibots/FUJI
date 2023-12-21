@@ -1,26 +1,37 @@
 module.exports.config = {
   name: "uid",
-  version: "1.0.0",
+  version: "2.0.0",
   hasPermission: 0,
-  credits: "Mirai Team",
-  description: "Get the user's Facebook UID.",
-  usePrefix: true,
-  commandCategory: "other",
-  cooldowns: 5
+  credits: "Marjhun Baylon",
+  description: "User and group id in one file",
+  usePrefix: false,
+  commandCategory: "box",
+  usages: "allid (mention user)",
+  cooldowns: 5,
+  dependencies: '',
 };
 
-module.exports.run = function ({ api, event }) {
-  if (Object.keys(event.mentions).length === 0) {
-    if (event.messageReply) {
-      const senderID = event.messageReply.senderID;
-      return api.sendMessage(senderID, event.threadID);
-    } else {
-      return api.sendMessage(`${event.senderID}`, event.threadID, event.messageID);
-    }
+module.exports.run = async function ({ api, event }) {
+  const tid = event.threadID;
+  const uid = event.senderID;
+  const userName = (await api.getUserInfo(uid))[uid].name;
+
+  if (!event.mentions || Object.keys(event.mentions).length === 0) {
+
+    const message = `THREAD ID (TID): ${tid}\nUSER ID (UID): ${uid}\nUSERNAME: ${userName}`;
+    return api.sendMessage(message, event.threadID);
   } else {
-    for (const mentionID in event.mentions) {
-      const mentionName = event.mentions[mentionID];
-      api.sendMessage(`${mentionName.replace('@', '')}: ${mentionID}`, event.threadID);
-    }
+
+    const mentionedUsers = Object.keys(event.mentions).map((id) => ({
+      id,
+      name: event.mentions[id],
+    }));
+
+    const message = `Thread ID (tid): ${tid}\nUser ID (uid): ${uid}\nUser Name: ${userName}\n\nMentioned Users:\n`;
+    const mentionedUsersInfo = mentionedUsers.map(
+      (user) => `${user.name.replace('@', '')} (uid: ${user.id})`
+    );
+
+    return api.sendMessage(message + mentionedUsersInfo.join('\n'), event.threadID);
   }
 };

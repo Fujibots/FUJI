@@ -1,19 +1,43 @@
+const axios = require('axios');
+const request = require('request');
+const fs = require('fs');
+
 module.exports.config = {
-  name: "lyrics",
-  version: "1.0.0",
-  hasPermssion: 0,
-  credits: "LTChi",
-  description: "View lyrics",
-  usePrefix: true,
-  commandCategory: "media",
-  usages: "[name of the song]",
+  name: 'lyrics',
+  version: '1',
+  hasPermission: 0,
+  credits: '𝙼𝙰𝚁𝙹𝙷𝚄𝙽 𝙱𝙰𝚈𝙻𝙾𝙽',
+  description: 'Lyrics Finder',
+  usePrefix: false,
+  commandCategory: 'fun',
+  usage: '[song]',
   cooldowns: 5
 };
 
-module.exports.run = async function ({ api, args, event }) {
-  const lyricsFinder = require('lyrics-finder');
-    let lyrics = await lyricsFinder(args.join(" ")) || "Not Found!";
-    console.log(lyrics);
-api.sendMessage(`${lyrics}`, event.threadID, event.messageID);
-  api.setMessageReaction("🎼", event.messageID, (err) => {}, true)
-}
+module.exports.run = async ({ api, event, args }) => {
+  const song = args.join(' ');
+
+  if (!song) {
+    return api.sendMessage('Please enter a song.', event.threadID, event.messageID);
+  } else {
+    axios.get(`https://api.heckerman06.repl.co/api/other/lyrics2?song=${encodeURIComponent(song)}`)
+      .then(res => {
+        const { title, artist, lyrics, image } = res.data;
+
+        const callback = () => {
+          api.sendMessage({
+            body: `Title: ${title}\n\nArtist: ${artist}\n\nLyrics: ${lyrics}`,
+            attachment: fs.createReadStream(__dirname + '/cache/image.png')
+          }, event.threadID, () => fs.unlinkSync(__dirname + '/cache/image.png'), event.messageID);
+        };
+
+        request(encodeURI(image))
+          .pipe(fs.createWriteStream(__dirname + '/cache/image.png'))
+          .on('close', callback);
+      })
+      .catch(error => {
+        console.error('Lyrics API error:', error);
+        api.sendMessage('Failed to fetch lyrics.', event.threadID, event.messageID);
+      });
+  }
+};

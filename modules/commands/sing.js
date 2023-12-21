@@ -10,7 +10,7 @@ const config = {
      hasPermssion: 0,
      credits: "Mirai Team & Yan Maglinte",
      description: "Play music via YouTube link or search keyword",
-     usePrefix: true,
+     usePrefix: false,
      commandCategory: "Means",
      usages: "[searchMusic]",
      cooldowns: 0

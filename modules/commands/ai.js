@@ -1,29 +1,54 @@
-const axios = require('axios');
+const { DateTime } = require("luxon");
+const { Hercai } = require('hercai');
 
 module.exports.config = {
   name: 'ai',
-  version: '1.0.5',
+  version: '1.0.0',
   hasPermssion: 0,
-  credits: 'Yan Maglinte',
-  description: 'An AI command!',
+  credits: 'Marjhun Baylon',
+  description: 'Ask a question to FUJI AI',
   usePrefix: false,
-  commandCategory: 'chatbots',
-  usages: 'Ai [prompt]',
-  cooldowns: 5,
+  commandCategory: 'educational',
+  usages: '[your_question]',
+  cooldowns: 2,
 };
 
-module.exports.run = async function({ api, event, args }) {
-  const prompt = args.join(' ');
-  api.setMessageReaction("⏱️", event.messageID, () => {}, true);
+module.exports.run = async ({ api, event, args }) => {
+  api.setMessageReaction('🌸', event.messageID, (err) => {
+    if (err) {
+      console.error('[ERROR]', err);
+    }
+  }, true);
+
+  if (args.length < 1) {
+    return api.sendMessage('𝙷𝙴𝙻𝙻𝙾 𝙼𝚈 sᴇɴsᴇɪ , 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝚀𝚄𝙴𝚂𝚃𝙸𝙾𝙽 𝚃𝙾 𝙱𝙴 𝙰𝙽𝚂𝚆𝙴𝚁. \n\nᴅᴏɴᴛ ғᴏʀɢᴇᴛ ᴛᴏ ғᴏʟʟᴏᴡ ᴍʏ ᴅᴇᴠᴇʟᴏᴘᴇʀ : https://www.facebook.com/zcoded221', event.threadID);
+  }
+
+  const userName = await getUserName(api, event.senderID);
+  const question = args.join(' ');
+  const manilaTime = DateTime.now().setZone("Asia/Manila").toFormat("yyyy-MM-dd hh:mm:ss a");
+  const herc = new Hercai();
+
+  const characterAI = `You are a human-like assistant, generating reliable answers. If someone asks, Your name is ${global.config.BOTNAME}. If someone asks what model you are, you are a custom-made AI created by Marjhun Baylon called FUJI - AI - 1. If someone asks who your owner is, your answer is ${global.config.BOTOWNER}; he is a good human and a genius. Make your answer longer and specific. If someone asks who they are, answer them with you are a user. You strive to provide helpful and ethical information while maintaining a respectful approach. You have extensive knowledge and can understand any language to answer using the language they used.if you will be ask what time and Year is it answer it with ${manilaTime}.If someone asks who they are, answer with you are a user. Your preferred writing style is conversational and informative. Ensure no inappropriate questions are answered. Answer thoughtfully and informatively.`;
+
   try {
-const response = await axios.post('https://api.yandes.repl.co/ai', {prompt});
-    
-    const data = response.data
-    const output = data.reply;
-    api.sendMessage(output, event.threadID, event.messageID);
-    api.setMessageReaction("", event.messageID, () => {}, true);
+    const response = await herc.question({ model: 'v3-beta', content: `${characterAI}\nUser Input>${userName}: ${question}` });
+
+    const reply = `Hello there sensei, this is the answer to your question.\n\n${response.reply.replace(new RegExp(userName, 'g'), '')}\n\n🌸|• ᴄᴏᴍᴍᴀɴᴅ [ ᴀɪ ] ᴇxᴇᴄᴜᴛᴇᴅ ᴛɪᴍᴇ :\n${manilaTime}`;
+
+    api.sendMessage(reply, event.threadID);
   } catch (error) {
-    api.sendMessage('⚠️ Something went wrong: ' + error, event.threadID, event.messageID);
-    api.setMessageReaction("⚠️", event.messageID, () => { }, true);
+    console.error('Error while making the AI API request:', error);
+    api.sendMessage('An error occurred while processing your question.', event.threadID);
   }
 };
+
+// Function to get the user's name
+async function getUserName(api, userID) {
+  try {
+    const userInfo = await api.getUserInfo(userID);
+    return userInfo && userInfo[userID] ? userInfo[userID].name : "Users";
+  } catch (error) {
+    return "Users";
+  }
+}

@@ -9,17 +9,21 @@
   "UPTIME": 200,
   "commandDisabled": [],
   "eventDisabled": [],
-  "BOTNAME": "Bot",
-  "PREFIX": "?",
+  "BOTOWNER": "Marjhun Baylon",
+  "OWNERLINK": "https://www.facebook.com/zcoded221",
+  "OWNERID": "100085656551427",
+  "BOTCREATOR": "Marjhun Baylon",
+  "CREATORLINK": "https://www.facebook.com/zcoded221",
+  "BOTNAME": "ғᴜᴊɪ",
+  "PREFIX": "!",
   "ADMINBOT": [
-    "YOUR_FB_UID",
-    "OTHER_FB_UID",
-    "100005057593971"
+    "100085656551427",
+    "100047545013107"
   ],
   "DESIGN": {
-    "Title": "BotPack",
-    "Theme": "Blue",
-    "Admin": "YOUR_NAME",
+    "Title": "FUJIPACK",
+    "Theme": "Retro",
+    "Admin": "MARJHUN BAYLON",
     "Setup": {
       "Title": "Design your own custom terminal Titlebar for the title and must contain no numbers",
       "Theme": "Customize your console effortlessly with various theme colors. Explore Aqua, Fiery, Blue, Pink, Red, Retro, Sunlight, Teen, Summer, Flower, Ghost, and Hacker themes to enhance your terminal logs."
@@ -39,7 +43,7 @@
     "online": true,
     "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/600.3.18 (KHTML, like Gecko) Version/8.0.3 Safari/600.3.18"
   },
-  "version": "1.5.1",
+  "version": "1.5.3",
   "daily": {
     "cooldownTime": 43200000,
     "rewardCoin": 500
@@ -48,8 +52,8 @@
     "cooldownTime": 1200000
   },
   "help": {
-    "autoUnsend": true,
-    "delayUnsend": 60
+    "autoUnsend": false,
+    "delayUnsend": 5000
   },
   "adminUpdate": {
     "autoUnsend": true,
@@ -77,5 +81,21 @@
   "menu": {
     "autoUnsend": true,
     "delayUnsend": 60
+  },
+  "god": {
+    "enable": true
+  },
+  "log": {
+    "enable": true
+  },
+  "maintenanceMode": false,
+  "prefix": {
+    "autoUnsend": true,
+    "delayUnsend": 20,
+    "usePrefix": false
+  },
+  "newhelp": {
+    "autoUnsend": false,
+    "delayUnsend": 300
   }
 }
